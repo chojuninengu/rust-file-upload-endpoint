@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload page</title>
+  <link rel="stylesheet" href="index.css">
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      background-color: #2532e6da;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      display: flex;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    input[type="file"] {
+      margin: 50px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .container {
+      background-color: #040e9bc5;
+      padding: 20px;
+      border-radius: 7px;
+      width: 400px;
+    }
+
+    .choose-file {
+      background-color: aquamarine;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <form method="POST" enctype="multipart/form-data">
+      <input class="choose-file" type="file" name="fileupload" required>
+      <button type="submit">Upload File</button>
+    </form>
+  </div>
+</body>
+
+</html>
