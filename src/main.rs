@@ -1,14 +1,25 @@
-use axum::{extract::Multipart, response::Html, routing::get, Router};
-use std::{fs::File, io::Write};
+use axum::{
+    extract::Multipart,
+    response::Html,
+    routing::{get, post},
+    Router,
+};
+use std::{
+    fs::{create_dir_all, File},
+    io::Write,
+};
 use tera::{Context, Tera};
 use tokio::net::TcpListener;
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/", get(index).post(upload));
+    // Create the directory for uploaded files if it doesn't exist
+    create_dir_all("files").expect("Failed to create directory for uploaded files");
+
+    let app = Router::new()
+        .route("/", get(index).post(upload));
 
     let listener = TcpListener::bind("localhost:5050").await.unwrap();
-
     let address = listener.local_addr().unwrap();
 
     println!("Server running on http://{}", address);
@@ -40,19 +51,24 @@ async fn upload(mut multipart: Multipart) {
         .await
         .expect("failed to extract field")
     {
-        if field.name().unwrap() != "fileupload" {
+        if field.name().unwrap_or_default() != "fileupload" {
             continue;
         }
+
         println!("Got file");
 
-        let file_name = field.file_name().unwrap();
+        if let Some(file_name) = field.file_name() {
+            let file_path = format!("files/{}", file_name);
 
-        let file_path = format!("files/{}", file_name);
+            let data = field.bytes().await.unwrap();
 
-        let data = field.bytes().await.unwrap();
+            let mut file_handle = File::create(&file_path).expect("failed to open file handle");
 
-        let mut file_handle = File::create(file_path).expect("failed to open file handle");
+            file_handle.write_all(&data).expect("failed to write data");
 
-        file_handle.write_all(&data).expect("failed to write data");
+            println!("File saved to: {}", file_path);
+        } else {
+            eprintln!("No file name provided");
+        }
     }
 }
