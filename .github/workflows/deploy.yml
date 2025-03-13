@@ -1,0 +1,40 @@
+name: Rust Formatting & Linting Check
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  lint:
+    name: Check Formatting & Linting
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: [stable, beta, nightly]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Cache Rust toolchain
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install Rust Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: rustfmt, clippy
+
+      - name: Check Formatting
+        run: cargo fmt --check
+
+      - name: Run Clippy Linter
+        run: cargo clippy -- -D warnings
