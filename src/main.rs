@@ -1,7 +1,8 @@
+#[warn(unused_imports)]
 use axum::{
     extract::Multipart,
     response::Html,
-    routing::{get, post},
+    routing::get,
     Router,
 };
 use std::{
@@ -16,8 +17,7 @@ async fn main() {
     // Create the directory for uploaded files if it doesn't exist
     create_dir_all("files").expect("Failed to create directory for uploaded files");
 
-    let app = Router::new()
-        .route("/", get(index).post(upload));
+    let app = Router::new().route("/", get(index).post(upload));
 
     let listener = TcpListener::bind("localhost:5050").await.unwrap();
     let address = listener.local_addr().unwrap();

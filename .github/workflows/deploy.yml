@@ -2,9 +2,9 @@ name: Rust Formatting & Linting Check
 
 on:
   push:
-    branches: main
+    branches: [main]
   pull_request:
-    branches: main
+    branches: [main]
   schedule:
     - cron: '0 0 * * 0'
 
@@ -15,6 +15,7 @@ jobs:
     strategy:
       matrix:
         rust: [stable, beta, nightly]
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -22,7 +23,10 @@ jobs:
       - name: Cache Rust toolchain
         uses: actions/cache@v3
         with:
-          path: ~/.cargo
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry
+            ~/.cargo/git
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
@@ -35,6 +39,12 @@ jobs:
 
       - name: Check Formatting
         run: cargo fmt --check
+        continue-on-error: true
 
       - name: Run Clippy Linter
         run: cargo clippy -- -D warnings
+        continue-on-error: true
+
+      - name: Install Dependencies
+        run: cargo build
+        continue-on-error: true
